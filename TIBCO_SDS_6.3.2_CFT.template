@@ -1,0 +1,401 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Creates an EC2 instance with TIBCO Spotfire Data Science 6.3.2",
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Amazon EC2 Configuration"
+                    },
+                    "Parameters": [
+                        "InstanceType",
+                        "KeyName"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Security"
+                    },
+                    "Parameters": [
+                        "SecuredIp"
+                    ]
+                }
+            ]
+        },
+        "AWS::CloudFormation::Designer": {
+            "ca3d5c6b-0289-44ea-bc97-f84b88f804c1": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 830,
+                    "y": 290
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "cb0f102a-d5d0-4c80-ac30-72f9ad2c9449": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 830,
+                    "y": 170
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "266524b3-96aa-42e2-a3c8-f8a7031c22e2": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 700,
+                    "y": 170
+                },
+                "z": 0,
+                "embeds": [],
+                "isassociatedwith": [
+                    "59f05428-4441-4c08-b579-33e3e284880b"
+                ]
+            },
+            "59f05428-4441-4c08-b579-33e3e284880b": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 590,
+                    "y": 170
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "b526100a-4e2d-479f-b774-2bb2aad66957": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 590,
+                    "y": 280
+                },
+                "z": 0,
+                "embeds": [],
+                "isassociatedwith": [
+                    "59f05428-4441-4c08-b579-33e3e284880b"
+                ]
+            }
+        }
+    },
+    "Resources": {
+        "TSDSinstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSRegionAMI",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "64"
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "Monitoring": "false",
+                "DisableApiTermination": "false",
+                "NetworkInterfaces": [
+                    {
+                        "GroupSet": [
+                            {
+                                "Fn::GetAtt": [
+                                    "TSDSSecurity",
+                                    "GroupId"
+                                ]
+                            }
+                        ],
+                        "AssociatePublicIpAddress": {
+                            "Ref": "EnablePublicIp"
+                        },
+                        "DeviceIndex": "0",
+                        "DeleteOnTermination": "true",
+                        "SubnetId": {
+                            "Ref": "SubnetId"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "TSDSInstanceProfile"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "ca3d5c6b-0289-44ea-bc97-f84b88f804c1"
+                }
+            }
+        },
+        "TSDSInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "TSDSRole"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "266524b3-96aa-42e2-a3c8-f8a7031c22e2"
+                }
+            }
+        },
+        "TSDSSecurity": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "for TSDS 6.3.2",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": {
+                            "Ref": "SecuredIpSsh"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": {
+                            "Ref": "SecuredIpUi"
+                        }
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VpcId"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "cb0f102a-d5d0-4c80-ac30-72f9ad2c9449"
+                }
+            }
+        },
+        "TSDSRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Path": "/"
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "59f05428-4441-4c08-b579-33e3e284880b"
+                }
+            }
+        },
+        "TSDSPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "TSDSRolePolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "ec2:AuthorizeSecurityGroupEgress",
+                                "ec2:AuthorizeSecurityGroupIngress",
+                                "ec2:DeleteSecurityGroup",
+                                "ec2:RevokeSecurityGroupEgress",
+                                "ec2:RevokeSecurityGroupIngress"
+                            ],
+                            "Resource": "arn:aws:ec2:*:*:security-group/*",
+                            "Condition": {
+                                "StringEquals": {
+                                    "ec2:Vpc": "arn:aws:ec2:*:*:vpc/vpc-<VPC-ID>"
+                                }
+                            }
+                        },
+                        {
+                            "Action": [
+                                "ec2:DescribeSecurityGroups",
+                                "ec2:DescribeSecurityGroupReferences",
+                                "ec2:DescribeStaleSecurityGroups",
+                                "ec2:DescribeVpcs"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": "*"
+                        }
+                    ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "TSDSRole"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "b526100a-4e2d-479f-b774-2bb2aad66957"
+                }
+            }
+        }
+    },
+    "Parameters": {
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair in the region, to enable SSH access to the instance.",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "AllowedPattern": "[-_ a-zA-Z0-9]*",
+            "ConstraintDescription": "Must be the name of an existing key pair.  It can contain only alphanumeric characters, spaces, dashes and underscores."
+        },
+        "InstanceType": {
+            "Description": "Select instance type from the drop-down",
+            "Type": "String",
+            "Default": "m5.2xlarge",
+            "AllowedValues": [
+                "m5.2xlarge",
+                "m5.4xlarge"
+            ],
+            "ConstraintDescription": "Must be valid EC2 instance type."
+        },
+        "SecuredIpSsh": {
+            "Description": "IP/Mask which will be allowed for SSH access. (i.e. 192.168.0.1/32 for a single ip or 0.0.0.0/0  for everyone)",
+            "Type": "String",
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(/([0-9]|[1-2][0-9]|3[0-2]))$",
+            "ConstraintDescription": "Secured ip must be valid IPv4 CIDR address for example 1.2.3.4/32"
+        },
+        "SecuredIpUi": {
+            "Description": "IP/Mask which will be allowed for TIBCO Spotfire Data Science UI access. (i.e. 192.168.0.1/32 for a single ip or 0.0.0.0/0  for everyone)",
+            "Type": "String",
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(/([0-9]|[1-2][0-9]|3[0-2]))$",
+            "ConstraintDescription": "Secured ip must be valid IPv4 CIDR address for example 1.2.3.4/32"
+        },
+        "VpcId": {
+            "Type": "AWS::EC2::VPC::Id",
+            "Description": "VpcId of your existing Virtual Private Cloud (VPC)",
+            "MinLength": "1",
+            "MaxLength": "64"
+        },
+        "SubnetId": {
+            "Type": "AWS::EC2::Subnet::Id",
+            "Description": "SubnetId of an existing subnet in your Virtual Private Cloud (VPC)",
+            "MinLength": "1",
+            "MaxLength": "64"
+        },
+        "EnablePublicIp": {
+            "Type": "String",
+            "Description": "Assign Public IP?",
+            "AllowedValues": [
+                "true",
+                "false"
+            ]
+        }
+    },
+    "Mappings": {
+        "AWSRegionAMI": {
+            "us-west-1": {
+                "64": "ami-0ac52af841ed3f7a5"
+            },
+            "ap-northeast-1": {
+                "64": "ami-0ecd85b00b43c9275"
+            },
+            "ap-northeast-2": {
+                "64": "ami-0c843aeeed2fe7a07"
+            },
+            "ap-south-1": {
+                "64": "ami-073283feb2dece963"
+            },
+            "ap-southeast-1": {
+                "64": "ami-024cbc5bb7973f450"
+            },
+            "ap-southeast-2": {
+                "64": "ami-0a076c2a42a68a27c"
+            },
+            "ca-central-1": {
+                "64": "ami-05f6ef179d08f90e5"
+            },
+            "eu-central-1": {
+                "64": "ami-0c5cdc340439d2818"
+            },
+            "eu-west-1": {
+                "64": "ami-09b3f6a09fe9332e3"
+            },
+            "eu-west-2": {
+                "64": "ami-0282bf556c0d57e91"
+            },
+            "eu-west-3": {
+                "64": "ami-0a94f0bdd8fe2b773"
+            },
+            "sa-east-1": {
+                "64": "ami-0bd29bbef6b5a5648"
+            },
+            "us-east-1": {
+                "64": "ami-08977b73973679164"
+            },
+            "us-east-2": {
+                "64": "ami-0ecd85b00b43c9275"
+            },
+            "us-west-2": {
+                "64": "ami-091e5df41e8f5221e"
+            }
+        }
+    },
+    "Outputs": {
+        "InstanceName": {
+            "Value": {
+                "Ref": "TSDSinstance"
+            },
+            "Description": "TIBCO Spotfire Data Science 6.3.2"
+        },
+        "GettingStartedURL": {
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "http://",
+                        {
+                            "Fn::GetAtt": [
+                                "TSDSinstance",
+                                "PublicDnsName"
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "Description": "Initial Instance Welcome Page URL"
+        },
+        "Login": {
+            "Value": "siteadmin",
+            "Description": "Admin user name"
+        },
+        "Password": {
+            "Value": "secret",
+            "Description": "Admin Password"
+        }
+    }
+}
