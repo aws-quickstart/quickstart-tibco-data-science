@@ -281,21 +281,21 @@ Rules:
 Mappings:
   AWSAMIRegionMap:
     ap-northeast-1:
-      '64': ami-004079861b0430d09
+      '64': ami-0acfdf39f8d75de29
     ap-northeast-2:
-      '64': ami-054d362c489876db0
+      '64': ami-0bb5b7a7ed7bda5ca
     ap-southeast-1:
       '64': ami-0cdd6ededcbdabd24
     ap-southeast-2:
-      '64': ami-06b184a965638d7c3
+      '64': ami-0cb130a737e27cb02
     eu-central-1:
-      '64': ami-0c1cdf700645ac5f7
+      '64': ami-0c535eed96ece2a9a
     eu-west-1:
-      '64': ami-0066a3487aa6170a4
+      '64': ami-036393a25956cf62c
     us-east-1:
       '64': ami-073a4c1ff56737312
     us-east-2:
-      '64': ami-0332955c4fc096b2a
+      '64': ami-036b7ad1ac71b23cb
     us-west-1:
       '64': ami-07de2387d1592110d
     us-west-2:
