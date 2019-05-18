@@ -285,7 +285,7 @@ Mappings:
     ap-northeast-2:
       '64': ami-0bb5b7a7ed7bda5ca
     ap-southeast-1:
-      '64': ami-0cdd6ededcbdabd24
+      '64': ami-0058d1ea261bfa52c
     ap-southeast-2:
       '64': ami-0cb130a737e27cb02
     eu-central-1:
@@ -293,13 +293,13 @@ Mappings:
     eu-west-1:
       '64': ami-036393a25956cf62c
     us-east-1:
-      '64': ami-073a4c1ff56737312
+      '64': ami-004695b33872a3f14
     us-east-2:
       '64': ami-036b7ad1ac71b23cb
     us-west-1:
-      '64': ami-07de2387d1592110d
+      '64': ami-03a2b7072cb3490ff
     us-west-2:
-      '64': ami-0726fbfc2277ecdcb
+      '64': ami-06ce838d113940171
 Resources:
   InstanceRole:
     Type: 'AWS::IAM::Role'
