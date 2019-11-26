@@ -352,7 +352,7 @@ Resources:
     Type: 'AWS::RDS::DBCluster'
     Properties:
       Engine: aurora-postgresql
-      DBClusterParameterGroupName: default.aurora-postgresql9.6
+      DBClusterParameterGroupName: default.aurora-postgresql10
       DatabaseName: chorus
       MasterUsername: postgres_chorus
       MasterUserPassword: !Ref RDSPassword
