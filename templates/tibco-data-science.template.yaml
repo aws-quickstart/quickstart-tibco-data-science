@@ -52,6 +52,7 @@ Metadata:
         default: AWS Quick Start configuration
       Parameters:
       - QSS3BucketName
+      - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
       RDSPassword:
@@ -60,6 +61,8 @@ Metadata:
         default: Multi-AZ database
       QSS3BucketName:
         default: Quick Start S3 bucket name
+      QSS3BucketRegion:
+        default: Quick Start S3 bucket region
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       EMRClusterName:
@@ -127,6 +130,10 @@ Parameters:
       Do not change: S3 bucket name for the Quick Start assets. Quick Start
       bucket name can include numbers, lowercase letters, uppercase letters, and
       hyphens (-). It cannot start or end with a hyphen (-).
+    Type: String
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
     Type: String
   QSS3KeyPrefix:
     AllowedPattern: '^[0-9a-zA-Z-][0-9a-zA-Z-/]*/$'
@@ -253,6 +260,7 @@ Parameters:
     Description: The ID of your existing VPC (e.g., vpc-0343606e).
     Type: AWS::EC2::VPC::Id
 Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   UseALBSSL: !Not [!Equals [!Ref 'ALBSSLCertificateARN', '']]
   CreateReadReplica: !Equals [!Ref 'DBMultiAZ', 'true']
   EMRBucketProvided: !Not [!Equals [!Ref EMRLogBucket, '']]
@@ -319,7 +327,10 @@ Resources:
             Statement:
               - Action:
                   - 's3:GetObject'
-                Resource: !Sub 'arn:aws:s3:::${QSS3BucketName}/${QSS3KeyPrefix}*'
+                Resource:
+                  !Sub
+                    - arn:${AWS::Partition}:s3:::${S3Bucket}/${QSS3KeyPrefix}*
+                    - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
                 Effect: Allow
           PolicyName: aws-quick-start-s3-policy
   InstanceRolePolicy:
@@ -388,8 +399,8 @@ Resources:
       GroupDescription: Enable DB port 8543
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: '8543'
-        ToPort: '8543'
+        FromPort: 8543
+        ToPort: 8543
         SourceSecurityGroupId: !Ref TSDSSecurityGroup
   TSDSSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -398,20 +409,20 @@ Resources:
       GroupDescription: Enable TIBCO Data Science UI access via port 8080 through ALB and port 22 through Bastion
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: '8080'
-        ToPort: '8080'
+        FromPort: 8080
+        ToPort: 8080
         SourceSecurityGroupId: !Ref TSDSELBSecurityGroup
       - IpProtocol: tcp
-        FromPort: '22'
-        ToPort: '22'
+        FromPort: 22
+        ToPort: 22
         SourceSecurityGroupId: !Ref BastionSecurityGroupID
   TCPFromEMRSlaveSecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     DependsOn: EMRClusterStack
     Properties:
       GroupId: !Ref TSDSSecurityGroup
-      FromPort: '0'
-      ToPort: '65535'
+      FromPort: 0
+      ToPort: 65535
       IpProtocol: tcp
       SourceSecurityGroupId: !GetAtt EMRClusterStack.Outputs.EmrSlavePrivateSecurityGroup
   TCPFromEMRMasterSecurityGroupIngress:
@@ -419,8 +430,8 @@ Resources:
     DependsOn: EMRClusterStack
     Properties:
       GroupId: !Ref TSDSSecurityGroup
-      FromPort: '0'
-      ToPort: '65535'
+      FromPort: 0
+      ToPort: 65535
       IpProtocol: tcp
       SourceSecurityGroupId: !GetAtt EMRClusterStack.Outputs.EmrMasterPrivateSecurityGroup
   TSDSELBSecurityGroup:
@@ -440,8 +451,8 @@ Resources:
       GroupDescription: Security group for mount target
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: '2049'
-        ToPort: '2049'
+        FromPort: 2049
+        ToPort: 2049
         SourceSecurityGroupId: !Ref TSDSSecurityGroup
   LaunchConfiguration:
     Type: 'AWS::AutoScaling::LaunchConfiguration'
@@ -708,14 +719,14 @@ Resources:
       Tags:
       - Key: Name
         Value: !Ref TSDSInstanceName
-        PropagateAtLaunch: 'true'
+        PropagateAtLaunch: true
       - Key: Owner
         Value: !Ref TSDSowner
-        PropagateAtLaunch: 'true'
+        PropagateAtLaunch: true
     UpdatePolicy:
       AutoScalingRollingUpdate:
-        MinInstancesInService: '0'
-        MaxBatchSize: '1'
+        MinInstancesInService: 0
+        MaxBatchSize: 1
   TSDSFileSystem:
     Type: 'AWS::EFS::FileSystem'
     Properties:
@@ -782,13 +793,16 @@ Resources:
       HostedZoneId: !Ref 'Route53HostedZoneId'
       AliasTarget:
         DNSName: !GetAtt 'ApplicationLoadBalancer.DNSName'
-        EvaluateTargetHealth: 'True'
+        EvaluateTargetHealth: True
         HostedZoneId: !GetAtt 'ApplicationLoadBalancer.CanonicalHostedZoneID'
   EMRClusterStack:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/emr-cluster.yaml
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/emr-cluster.template.yaml'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         EMRCoreInstanceType: !Ref EMRCoreInstanceType
         EMRLogBucket: !Ref EMRLogBucket

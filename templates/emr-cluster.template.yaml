@@ -88,7 +88,7 @@ Resources:
           EbsConfiguration:
             EbsBlockDeviceConfigs:
               - VolumeSpecification:
-                  SizeInGB: '200'
+                  SizeInGB: 200
                   VolumeType: standard
           InstanceCount: 1
           InstanceType: !Ref EMRMasterInstanceType
@@ -116,7 +116,7 @@ Resources:
           InstanceType: !Ref EMRCoreInstanceType
           Market: ON_DEMAND
           Name: Core
-        TerminationProtected: 'false'
+        TerminationProtected: false
         Ec2KeyName: !Ref KeyPairName
         Ec2SubnetId: !Ref PrivateSubnet1ID
         ServiceAccessSecurityGroup: !Ref EmrServiceAccessSecurityGroup
@@ -145,17 +145,17 @@ Resources:
       VpcId: !Ref VPCID
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '0'
-          ToPort: '65535'
+          FromPort: 0
+          ToPort: 65535
           SourceSecurityGroupId: !Ref TSDSSecurityGroupId
         - IpProtocol: tcp
-          FromPort: '10000'
-          ToPort: '10000'
+          FromPort: 10000
+          ToPort: 10000
           CidrIp: !Ref AdminConsoleAccessCIDR
   TCPFromSlaveSecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '0'
+      FromPort: 0
       GroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
@@ -163,11 +163,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
-      ToPort: '65535'
+      ToPort: 65535
   TCPFromMasterSecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '0'
+      FromPort: 0
       GroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
@@ -175,11 +175,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
-      ToPort: '65535'
+      ToPort: 65535
   ICMPFromSlaveSecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '-1'
+      FromPort: -1
       GroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
@@ -187,11 +187,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
-      ToPort: '-1'
+      ToPort: -1
   ICMPFromMasterSecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '-1'
+      FromPort: -1
       GroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
@@ -199,11 +199,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
-      ToPort: '-1'
+      ToPort: -1
   UDPFromSlaveSecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '0'
+      FromPort: 0
       GroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
@@ -211,11 +211,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
-      ToPort: '65535'
+      ToPort: 65535
   UDPFromMasterSecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '0'
+      FromPort: 0
       GroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
@@ -223,11 +223,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
-      ToPort: '65535'
+      ToPort: 65535
   TCPFromSlaveIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '0'
+      FromPort: 0
       GroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
@@ -235,11 +235,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
-      ToPort: '65535'
+      ToPort: 65535
   TCPFromMasterIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '0'
+      FromPort: 0
       GroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
@@ -247,11 +247,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
-      ToPort: '65535'
+      ToPort: 65535
   ICMPFromSlaveIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '-1'
+      FromPort: -1
       GroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
@@ -259,11 +259,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
-      ToPort: '-1'
+      ToPort: -1
   ICMPFromMasterIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '-1'
+      FromPort: -1
       GroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
@@ -271,11 +271,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
-      ToPort: '-1'
+      ToPort: -1
   UDPFromSlaveIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '0'
+      FromPort: 0
       GroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
@@ -283,11 +283,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
-      ToPort: '65535'
+      ToPort: 65535
   UDPFromMasterIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      FromPort: '0'
+      FromPort: 0
       GroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
@@ -295,11 +295,11 @@ Resources:
       SourceSecurityGroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
-      ToPort: '65535'
+      ToPort: 65535
   TCPMasterEgress:
     Type: 'AWS::EC2::SecurityGroupEgress'
     Properties:
-      FromPort: '8443'
+      FromPort: 8443
       GroupId: !GetAtt
         - EmrServiceAccessSecurityGroup
         - GroupId
@@ -307,11 +307,11 @@ Resources:
       DestinationSecurityGroupId: !GetAtt
         - EmrMasterPrivateSecurityGroup
         - GroupId
-      ToPort: '8443'
+      ToPort: 8443
   TCPSlaveEgress:
     Type: 'AWS::EC2::SecurityGroupEgress'
     Properties:
-      FromPort: '8443'
+      FromPort: 8443
       GroupId: !GetAtt
         - EmrServiceAccessSecurityGroup
         - GroupId
@@ -319,7 +319,7 @@ Resources:
       DestinationSecurityGroupId: !GetAtt
         - EmrSlavePrivateSecurityGroup
         - GroupId
-      ToPort: '8443'
+      ToPort: 8443
   EmrMasterPrivateSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
